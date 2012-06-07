@@ -210,8 +210,8 @@ class SearchTestCase(ElasticSearchTestCase):
         self.conn.index({"name":"AgeBill Baloney", "age":35}, "test-index", "test-type", 2)
         self.conn.refresh(["test-index"])
 
-        query = {   "query": { 
-                        "query_string": { "query": "name:age" }, 
+        query = {   "query": {
+                        "query_string": { "query": "name:age" },
                         "filtered": {
                             "filter": {
                                 "range": {
@@ -234,6 +234,11 @@ class SearchTestCase(ElasticSearchTestCase):
         result = self.conn.morelikethis("test-index", "test-type", 1, ['name'], min_term_freq=1, min_doc_freq=1)
         self.assertResultContains(result, {'hits': {'hits': [{'_score': 0.19178301,'_type': 'test-type', '_id': '3', '_source': {'name': 'Joe Test'}, '_index': 'test-index'}], 'total': 1, 'max_score': 0.19178301}})
 
+    def testPercolate(self):
+        percolator = self.conn.percolator("test-index", "test-name", {"query": {"term": {"field2": "bill"}}})
+        self.assertResultContains(percolator, {'_type': 'test-index', '_id': 'test-name', 'ok': True, '_version': 1, '_index': '_percolator'})
+        percolate = self.conn.percolate("test-index", "test-name", {"doc": {"field2": "bill"}})
+        self.assertResultContains(percolate, {'matches': ['test-name'], 'ok': True})
 
 if __name__ == "__main__":
     unittest.main()

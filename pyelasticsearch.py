@@ -50,10 +50,10 @@ Terms
 
 Percolate
 
->>> conn.percolator("test", "juju", {"query": {"term": {"field2":"bill"}}})
+>>> conn.percolator("test", "juju", {"query": {"term": {"field2": "bill"}}})
 {'_type': 'test', '_id': 'juju', 'ok': True, '_version': 1, '_index': '_percolator'}
 
->>> conn.percolate("test", "juju", {"doc": {"field2":"bill"}})
+>>> conn.percolate("test", "juju", {"doc": {"field2": "bill"}})
 {'matches': ['juju'], 'ok': True}
 
 More Like This
@@ -130,7 +130,7 @@ except ImportError:
 __author__ = 'Robert Eanes'
 __authors__ = ['Jay States']
 __all__ = ['ElasticSearch']
-__version__ = (0, 0, 4)
+__version__ = (0, 0, 6)
 
 def get_version():
     return "%s.%s.%s" % __version__
