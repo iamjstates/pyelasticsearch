@@ -48,6 +48,14 @@ Terms
 >>> conn.terms(['name'], min_freq=2)
 {'docs': {'max_doc': 2, 'num_docs': 2, 'deleted_docs': 0}, 'fields': {'name': {'terms': []}}, '_shards': {'successful': 5, 'failed': 0, 'total': 5}}
 
+Percolate
+
+>>> conn.percolator("test", "juju", {"query": {"term": {"field2":"bill"}}})
+{'_type': 'test', '_id': 'juju', 'ok': True, '_version': 1, '_index': '_percolator'}
+
+>>> conn.percolate("test", "juju", {"doc": {"field2":"bill"}})
+{'matches': ['juju'], 'ok': True}
+
 More Like This
 >>> conn.index({"name":"Joe Test"}, "test-index", "test-type", 3)
 {'_type': 'test-type', '_id': '3', 'ok': True, '_index': 'test-index'}
@@ -120,8 +128,9 @@ except ImportError:
 
 
 __author__ = 'Robert Eanes'
+__authors__ = ['Jay States']
 __all__ = ['ElasticSearch']
-__version__ = (0, 0, 3)
+__version__ = (0, 0, 4)
 
 def get_version():
     return "%s.%s.%s" % __version__
@@ -345,6 +354,22 @@ class ElasticSearch(object):
         """
         path = self._make_path([','.join(indexes), doc_type,"_mapping"])
         response = self._send_request('PUT', path, mapping, **query_params)
+        return response
+
+    def percolator(self, index, name, query):
+        """
+        Register specific definition for percolator query
+        """
+        path = self._make_path(['_percolator', index, name])
+        response = self._send_request('PUT', path, query)
+        return response
+
+    def percolate(self, index, doc_type, doc, **query_params):
+        """
+        This percolates the document and excutes a query on a specific index & type.
+        """
+        path = self._make_path([index, doc_type, "_percolate"])
+        response = self._send_request('GET', path, doc, **query_params)
         return response
 
     def morelikethis(self, index, doc_type, id, fields, **query_params):
